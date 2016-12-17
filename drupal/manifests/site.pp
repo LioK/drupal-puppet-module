@@ -20,8 +20,8 @@ class drupal::site {
         ensure => installed,
     }
 
-    # Install php5-pear
-    package { 'php5-pear':
+    # Install php-pear
+    package { 'php-pear':
         ensure => installed,
     }
 
@@ -61,13 +61,15 @@ class drupal::site {
     }
 
     # Enable mod_rewrite and restart apache2
-    exec { 'a2enmod':
-        command => 'sudo a2enmod rewrite',
+    exec { 'a2enmod rewrite':
+        command => 'a2enmod rewrite',
+        path =>  [ '/bin/', '/sbin/' , '/usr/bin/', '/usr/sbin/' ],
     }
 
     # Enable mod_rewrite and restart apache2
-    exec { 'apache2':
-        command => 'sudo service apache2 restart',
+    exec { 'service apache2 restart':
+        command => 'service apache2 restart',
+        path =>  [ '/bin/', '/sbin/' , '/usr/bin/', '/usr/sbin/' ],
     }
 
     # Copy the my.cnf file to the Drupal VM, restart MySQL
@@ -77,25 +79,30 @@ class drupal::site {
     }
 
     # Restart mysql
-    exec { 'mysql':
-        command => 'sudo service mysql restart',
+    exec { 'service mysql restart':
+        command => 'service mysql restart',
+        path =>  [ '/bin/', '/sbin/' , '/usr/bin/', '/usr/sbin/' ],
     }
 
-    exec { 'create drupaldb and user':
-        command => 'mysql -u root -e "USE mysql; CREATE DATABASE $db_name; CREATE USER $db_user@$db_host IDENTIFIED BY $db_user_password; GRANT ALL PRIVILEGES ON $db_name.* TO $db_user@$db_host; FLUSH PRIVILEGES;"',
+    exec { 'mysql -u root -e "USE mysql; CREATE DATABASE drupaldb; CREATE USER drupal@localhost IDENTIFIED BY \"drupal\"; GRANT ALL PRIVILEGES ON drupaldb.* TO drupal@localhost; FLUSH PRIVILEGES;"': 
+        command => 'mysql -u root -e "USE mysql; CREATE DATABASE drupaldb; CREATE USER drupal@localhost IDENTIFIED BY \"drupal\"; GRANT ALL PRIVILEGES ON drupaldb.* TO drupal@localhost; FLUSH PRIVILEGES;"',
+        path =>  [ '/bin/', '/sbin/' , '/usr/bin/', '/usr/sbin/' ],
     }
 
-    exec { 'install Drupal with Drush':
+    exec { 'drush dl drupal --drupal-project-rename=html -y':
         cwd => '/var/www/',
-        command => 'sudo drush dl drupal --drupal-project-rename=html -y',
+        command => 'drush dl drupal --drupal-project-rename=html -y',
+        path =>  [ '/bin/', '/sbin/' , '/usr/bin/', '/usr/sbin/' ],
     }
 
-    exec { 'complete Drupal setup with Drush':
+    exec { 'sudo drush site-install standard --db-url=mysql://drupal:drupal@localhost/drupaldb --site-name=altoros --account-name=drupal --account-pass=drupal -y':
         cwd => '/var/www/html/',
-        command => 'sudo drush site-install standard --db-url=mysql://$db_user:$db_user_password@localhost/$db_name --site-name=$site_name --account-name=$drupal_user_account --account-pass=$drupal_user_password -y',
+        command => 'sudo drush site-install standard --db-url=mysql://drupal:drupal@localhost/drupaldb --site-name=altoros --account-name=drupal --account-pass=drupal -y',
+        path =>  [ '/bin/', '/sbin/' , '/usr/bin/', '/usr/sbin/' ],
     }
 
-    exec { 'change ownership of /var/www/html':
-        command => 'sudo chown -R www-data:www-data /var/www/html',
+    exec { 'chown -R www-data:www-data /var/www/html':
+        command => 'chown -R www-data:www-data /var/www/html',
+        path =>  [ '/bin/', '/sbin/' , '/usr/bin/', '/usr/sbin/' ],
     }
 }

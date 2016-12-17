@@ -2,5 +2,5 @@ class { 'drupal':
 }
 
 Exec {
-path => '/bin,/sbin',
+path =>  [ '/bin/', '/sbin/' , '/usr/bin/', '/usr/sbin/' ]
 }
