@@ -91,7 +91,7 @@ class drupal::site {
 
     exec { 'drush dl drupal --drupal-project-rename=html -y':
         cwd => '/var/www/',
-        command => 'drush dl drupal --drupal-project-rename=html -y',
+        command => 'drush dl drupal --destination=/var/www/ --drupal-project-rename=html -y',
         path =>  [ '/bin/', '/sbin/' , '/usr/bin/', '/usr/sbin/' ],
     }
 
